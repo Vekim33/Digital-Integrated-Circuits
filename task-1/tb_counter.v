@@ -46,11 +46,11 @@ module tb_counter;
         #10 rst = 0;
 
         // Operate the DUT
-        #17  mode = 1;
-        #800  mode = 0;
-        #800  mode = 1;
-        #100 mode = 0;
-
+        #17  mode = 1; // Goes to max
+        #800  mode = 0; // Goes down from max
+        #320 mode = 1; // Increases to invalid
+        #45 mode = 0; // Decreases to invalid
+        #500 mode = 1; // Goes down to min
         $finish;
 
     end
@@ -80,9 +80,11 @@ module tb_counter;
                 // Add the remaining assertions here to check the correct
                 // increment
                 if (past_cnt == -51) begin
-                    `myassert (cnt - past_cnt = 8);
-                end else begin
-                    `myassert (cnt - past_cnt = 4); 
+                    `myassert (cnt == -43);
+                end else if (265 <= past_cnt <= 269) begin
+                    `myassert (cnt - past_cnt <= 4);
+		        end else begin
+                    `myassert (cnt - past_cnt == 4); 
                 end
 
             end else begin // past_mode == 0
@@ -90,11 +92,14 @@ module tb_counter;
                 // Add the remaining assertions here to check the correct
                 // decrement
                 if (past_cnt == -37) begin
-                    `myassert (past_cnt - cnt == -20);
-                end else begin
-                    `myassert (past_cnt - cnt == -10);
-                end
-
+                    `myassert (cnt == -57);
+                end else if (past_cnt < 10 && past_cnt >= 0) begin
+                    `myassert (cnt - past_cnt == -10);
+                end else if (-263 <= past_cnt <= -253) begin
+                    `myassert (cnt - past_cnt >= -10);
+		        end else if (past_cnt < 0) begin
+                    `myassert (cnt - past_cnt == -10);
+		        end 
             end
         end
     end
